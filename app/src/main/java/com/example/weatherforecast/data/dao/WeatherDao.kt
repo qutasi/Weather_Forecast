@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import com.example.weatherforecast.model.WeatherModel
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface WeatherDao {
@@ -13,4 +14,7 @@ interface WeatherDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWeather(weather: WeatherModel)
+
+    @Query("SELECT * FROM weatherTable ORDER BY timestamp DESC LIMIT 3")
+    fun getLatestWeather(): Flow<WeatherModel?>
 }

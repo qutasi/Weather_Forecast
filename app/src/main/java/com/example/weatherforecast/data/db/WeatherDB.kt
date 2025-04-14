@@ -10,7 +10,7 @@ import com.example.weatherforecast.converters.LocationConverter
 import com.example.weatherforecast.data.dao.WeatherDao
 import com.example.weatherforecast.model.WeatherModel
 
-@Database(entities = [WeatherModel::class], version = 1, exportSchema = false)
+@Database(entities = [WeatherModel::class], version = 3, exportSchema = false)
 @TypeConverters(
     CurrentDataConverter::class,
     DateConverter::class,
@@ -19,5 +19,6 @@ import com.example.weatherforecast.model.WeatherModel
     )
 abstract class WeatherDB : RoomDatabase() {
     abstract fun weatherDao(): WeatherDao
+
 }
 

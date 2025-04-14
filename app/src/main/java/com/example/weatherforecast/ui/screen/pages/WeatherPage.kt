@@ -13,16 +13,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -50,7 +51,10 @@ fun WeatherPage(
 ) {
 
     var city by rememberSaveable { mutableStateOf("") }
+
     val weatherResult by viewModel.weatherResult.collectAsStateWithLifecycle()
+
+    val previousWeather by viewModel.latestWeather.collectAsStateWithLifecycle()
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -71,7 +75,7 @@ fun WeatherPage(
                 value = city,
                 onValueChange = {city = it},
                 textStyle = TextStyle(color = Color.Black),
-                label = { Text(text = "Search for any location") },
+                label = { Text(text = "Search for any location", color = Color.Gray) },
             )
             IconButton(onClick = {
                 viewModel.getWeatherData(city)
@@ -82,7 +86,18 @@ fun WeatherPage(
                     modifier = Modifier.size(40.dp))
             }
         }
-        ResultDisplay(weatherResult = weatherResult)
+        Text(
+            text = "Last searched city",
+            fontSize = 16.sp,
+            textAlign = TextAlign.Center,
+            color = Color.Gray,
+        )
+        PreviousLocation(previousWeather = previousWeather)
+        PreviousLocation(previousWeather = previousWeather)
+        PreviousLocation(previousWeather = previousWeather)
+        if (weatherResult is NetworkResponse.Success) {
+            ResultDisplay(weatherResult = weatherResult)
+        }
     }
 }
 
@@ -102,6 +117,53 @@ fun ResultDisplay(weatherResult: NetworkResponse<WeatherModel>) {
             WeatherDetails(data = weatherResult.data)
         }
     }
+}
+
+@Composable
+fun PreviousLocation(previousWeather : WeatherModel? = null) {
+    if (previousWeather != null) {
+        LatestWeatherDetails(data = previousWeather)
+    }
+}
+
+
+@Composable
+fun LatestWeatherDetails(data : WeatherModel) {
+
+    Card(
+        modifier = Modifier.padding(16.dp).fillMaxWidth(),
+        shape = CardDefaults.shape,
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.LocationOn,
+                contentDescription = "Location icon",
+                modifier = Modifier.size(32.dp)
+            )
+            Text(text = data.location.name, fontSize = 30.sp)
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(text = data.location.country, fontSize = 18.sp, color = Color.Gray)
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "${data.current.temp_c} °C ",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+            )
+            LatestConditionImage(data = data)
+        }
+    }
+
 }
 
 @Composable
@@ -148,6 +210,17 @@ fun WeatherDetails(data : WeatherModel) {
     }
 }
 
+@Composable
+fun LatestConditionImage(data : WeatherModel) {
+    AsyncImage(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data("https:${data.current.condition.icon}".replace("64x64", "128x128"))
+            .crossfade(true)
+            .build(),
+        contentDescription = "Condition icon",
+        modifier = Modifier.size(66.dp)
+    )
+}
 
 @Composable
 fun ConditionImage(data : WeatherModel) {

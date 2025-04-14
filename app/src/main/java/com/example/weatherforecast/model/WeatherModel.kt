@@ -8,5 +8,6 @@ data class WeatherModel(
     @PrimaryKey val id: Int? = null,
     val location: Location,
     val current: Current,
-    val forecast: Forecast
+    val forecast: Forecast? = null,
+    val timestamp: Long = System.currentTimeMillis()
 )

@@ -20,6 +20,19 @@ class WeatherViewModel @Inject constructor(
     private val _weatherResult = MutableStateFlow<NetworkResponse<WeatherModel>>(NetworkResponse.Empty)
     val weatherResult : StateFlow<NetworkResponse<WeatherModel>> = _weatherResult
 
+    private val _latestWeather = MutableStateFlow<WeatherModel?>(null)
+    val latestWeather : StateFlow<WeatherModel?> = _latestWeather
+
+    init {
+        viewModelScope.launch {
+            repository.getLatestWeather()
+                .collect { latest ->
+                    _latestWeather.value = latest
+                }
+        }
+    }
+
+    // Called when user searches for a city
     fun getWeatherData(city: String) {
         runCatching {
             viewModelScope.launch {
@@ -27,9 +40,10 @@ class WeatherViewModel @Inject constructor(
 
                 val result = repository.getWeather(city)
                 if (result != null) {
-                        _weatherResult.value = NetworkResponse.Success(result)
-                    }
-                else {
+                    _weatherResult.value = NetworkResponse.Success(result)
+                    repository.insertWeather(result)
+
+                } else {
                     _weatherResult.value = NetworkResponse.Error("Failed to fetch weather data")
                 }
             }

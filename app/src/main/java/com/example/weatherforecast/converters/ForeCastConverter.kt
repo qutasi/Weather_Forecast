@@ -10,13 +10,15 @@ class ForeCastConverter {
     private val gson = Gson()
 
     @TypeConverter
-    fun fromForecast(forecast: Forecast): String {
-        return gson.toJson(forecast)
+    fun fromForecast(forecast: Forecast?): String? {
+        return forecast?.let { gson.toJson(it) }
     }
 
     @TypeConverter
-    fun toForecast(data: String): Forecast {
-        val type = object : TypeToken<Forecast>() {}.type
-        return gson.fromJson(data, type)
+    fun toForecast(data: String?): Forecast? {
+        return data?.let {
+            val type = object : TypeToken<Forecast>() {}.type
+            gson.fromJson(it, type)
+        }
     }
 }

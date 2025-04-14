@@ -29,7 +29,9 @@ object AppModule {
             context,
             WeatherDB::class.java,
             "weather_database"
-        ).build()
+        )
+            .fallbackToDestructiveMigration()
+            .build()
     }
 
     @Provides
