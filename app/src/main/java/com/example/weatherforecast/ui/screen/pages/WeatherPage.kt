@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -47,8 +49,8 @@ fun WeatherPage(
     modifier: Modifier = Modifier
 ) {
 
-    var city by remember { mutableStateOf("") } //use stateflow
-    val weatherResult = viewModel.weatherResult.observeAsState() //collectstatewithlifecycle
+    var city by rememberSaveable { mutableStateOf("") }
+    val weatherResult by viewModel.weatherResult.collectAsStateWithLifecycle()
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -80,17 +82,24 @@ fun WeatherPage(
                     modifier = Modifier.size(40.dp))
             }
         }
-        when(val result = weatherResult.value) {
-            is NetworkResponse.Error -> {
-                Text(text = result.message)
-            }
-            is NetworkResponse.Loading -> {
-                CircularProgressIndicator()
-            }
-            is NetworkResponse.Success -> {
-                WeatherDetails(data = result.data)
-            }
-            else -> {}
+        ResultDisplay(weatherResult = weatherResult)
+    }
+}
+
+@Composable
+fun ResultDisplay(weatherResult: NetworkResponse<WeatherModel>) {
+    when(weatherResult) {
+        is NetworkResponse.Empty -> {
+            Text(text = "Search for any location")
+        }
+        is NetworkResponse.Loading -> {
+            CircularProgressIndicator()
+        }
+        is NetworkResponse.Error -> {
+            Text(text = weatherResult.message)
+        }
+        is NetworkResponse.Success -> {
+            WeatherDetails(data = weatherResult.data)
         }
     }
 }
