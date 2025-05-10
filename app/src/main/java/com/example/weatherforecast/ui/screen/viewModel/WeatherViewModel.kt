@@ -24,9 +24,6 @@ class WeatherViewModel @Inject constructor(
     private val _latestWeatherList = MutableStateFlow<List<WeatherModel>>(emptyList())
     val latestWeatherList : StateFlow<List<WeatherModel>> = _latestWeatherList
 
-    private val _lastCitiesWithWeather = MutableStateFlow<MutableList<NetworkResponse<WeatherModel>>>(mutableListOf())
-    val lastCitiesWithWeather : StateFlow<List<NetworkResponse<WeatherModel>>> = _lastCitiesWithWeather
-
     init {
         getLatestCities()
     }
@@ -40,7 +37,6 @@ class WeatherViewModel @Inject constructor(
         }
     }
 
-    // Called when user searches for a city
     fun getWeatherData(city: String) {
         runCatching {
             viewModelScope.launch {
