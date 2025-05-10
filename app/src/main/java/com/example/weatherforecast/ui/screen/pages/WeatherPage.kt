@@ -86,16 +86,18 @@ fun WeatherPage(
                     modifier = Modifier.size(40.dp))
             }
         }
-        Text(
-            text = "Previous Searches",
-            fontSize = 16.sp,
-            textAlign = TextAlign.Center,
-            color = Color.Gray,
-        )
+        if (weatherResult !is NetworkResponse.Success) {
+            Text(
+                text = "Previous Searches",
+                fontSize = 16.sp,
+                textAlign = TextAlign.Center,
+                color = Color.Gray,
+            )
 
-        LazyColumn {
-            items(latestWeatherList) { weather ->
-                LatestWeatherDetails(data = weather)
+            LazyColumn {
+                items(latestWeatherList) { weather ->
+                    LatestWeatherDetails(data = weather)
+                }
             }
         }
 
@@ -120,13 +122,6 @@ fun ResultDisplay(weatherResult: NetworkResponse<WeatherModel>) {
         is NetworkResponse.Success -> {
             WeatherDetails(data = weatherResult.data)
         }
-    }
-}
-
-@Composable
-fun PreviousLocation(previousWeather : WeatherModel? = null) {
-    if (previousWeather != null) {
-        LatestWeatherDetails(data = previousWeather)
     }
 }
 
