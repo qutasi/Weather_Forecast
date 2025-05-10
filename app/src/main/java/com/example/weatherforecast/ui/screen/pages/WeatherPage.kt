@@ -55,12 +55,8 @@ fun WeatherPage(
     var city by rememberSaveable { mutableStateOf("") }
 
     val weatherResult by viewModel.weatherResult.collectAsStateWithLifecycle()
-
-    val previousWeather by viewModel.latestWeather.collectAsStateWithLifecycle()
-
+    val latestWeatherList by viewModel.latestWeatherList.collectAsStateWithLifecycle()
     val keyboardController = LocalSoftwareKeyboardController.current
-
-    val latestCities by viewModel.lastCitiesWithWeather.collectAsStateWithLifecycle()
 
     Column(modifier = modifier
         .fillMaxWidth()
@@ -91,18 +87,16 @@ fun WeatherPage(
             }
         }
         Text(
-            text = "Last searched city",
+            text = "Previous Searches",
             fontSize = 16.sp,
             textAlign = TextAlign.Center,
             color = Color.Gray,
         )
 
         LazyColumn {
-          items(
-              items = latestCities
-          ) {
-              ResultDisplay(it)
-          }
+            items(latestWeatherList) { weather ->
+                LatestWeatherDetails(data = weather)
+            }
         }
 
         if (weatherResult is NetworkResponse.Success) {
