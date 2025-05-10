@@ -15,6 +15,6 @@ interface WeatherDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWeather(weather: WeatherModel)
 
-    @Query("SELECT * FROM weatherTable ORDER BY timestamp DESC LIMIT 3")
-    fun getLatestWeather(): Flow<WeatherModel?>
+    @Query("SELECT * FROM weatherTable ORDER BY id DESC LIMIT 3")
+    fun getLatestWeather(): Flow<List<WeatherModel?>>
 }

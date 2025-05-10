@@ -9,6 +9,6 @@ interface WeatherRepository {
 
     suspend fun insertWeather(weather: WeatherModel)
 
-    fun getLatestWeather() : Flow<WeatherModel?>
+    fun getLatestWeather() : Flow<List<WeatherModel?>>
 
 }

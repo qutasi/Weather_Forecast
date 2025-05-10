@@ -20,15 +20,30 @@ class WeatherViewModel @Inject constructor(
     private val _weatherResult = MutableStateFlow<NetworkResponse<WeatherModel>>(NetworkResponse.Empty)
     val weatherResult : StateFlow<NetworkResponse<WeatherModel>> = _weatherResult
 
-    private val _latestWeather = MutableStateFlow<WeatherModel?>(null)
-    val latestWeather : StateFlow<WeatherModel?> = _latestWeather
+    private val _latestWeather = MutableStateFlow<List<String?>>(emptyList())
+    val latestWeather : StateFlow<List<String?>> = _latestWeather
+
+    private val _lastCitiesWithWeather = MutableStateFlow<MutableList<NetworkResponse<WeatherModel>>>(mutableListOf())
+    val lastCitiesWithWeather : StateFlow<List<NetworkResponse<WeatherModel>>> = _lastCitiesWithWeather
 
     init {
+        getLatestCities()
+        getLatestCityWeathers()
+    }
+
+    private fun getLatestCities() {
         viewModelScope.launch {
             repository.getLatestWeather()
                 .collect { latest ->
-                    _latestWeather.value = latest
+                    _latestWeather.value = latest.map { it?.location?.name ?: "" }
                 }
+        }
+    }
+
+    private fun getLatestCityWeathers() {
+        latestWeather.value.forEach {
+            getWeatherData(it ?: "")
+            _lastCitiesWithWeather.value.add(_weatherResult.value)
         }
     }
 
@@ -37,8 +52,8 @@ class WeatherViewModel @Inject constructor(
         runCatching {
             viewModelScope.launch {
                 _weatherResult.value = NetworkResponse.Loading
-
                 val result = repository.getWeather(city)
+
                 if (result != null) {
                     _weatherResult.value = NetworkResponse.Success(result)
                     repository.insertWeather(result)

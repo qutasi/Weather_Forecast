@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
@@ -58,6 +60,8 @@ fun WeatherPage(
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
+    val latestCities by viewModel.lastCitiesWithWeather.collectAsStateWithLifecycle()
+
     Column(modifier = modifier
         .fillMaxWidth()
         .padding(8.dp),
@@ -92,9 +96,15 @@ fun WeatherPage(
             textAlign = TextAlign.Center,
             color = Color.Gray,
         )
-        PreviousLocation(previousWeather = previousWeather)
-        PreviousLocation(previousWeather = previousWeather)
-        PreviousLocation(previousWeather = previousWeather)
+
+        LazyColumn {
+          items(
+              items = latestCities
+          ) {
+              ResultDisplay(it)
+          }
+        }
+
         if (weatherResult is NetworkResponse.Success) {
             ResultDisplay(weatherResult = weatherResult)
         }
@@ -125,7 +135,6 @@ fun PreviousLocation(previousWeather : WeatherModel? = null) {
         LatestWeatherDetails(data = previousWeather)
     }
 }
-
 
 @Composable
 fun LatestWeatherDetails(data : WeatherModel) {
